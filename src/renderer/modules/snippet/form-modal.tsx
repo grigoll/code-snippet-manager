@@ -11,33 +11,38 @@ import {
   ModalHeader,
   ModalOverlay,
   Textarea,
-  useDisclosure,
 } from '@chakra-ui/react';
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
+import { SnippetField, SnippetFormData } from 'shared/snippet';
 
-enum FormField {
-  Title = 'title',
-  Description = 'description',
-  Code = 'code',
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (snippetData: SnippetFormData) => void;
 }
 
-const formInitialState = {
-  [FormField.Title]: '',
-  [FormField.Description]: '',
-  [FormField.Code]: '',
+const formInitialState: SnippetFormData = {
+  title: '',
+  description: '',
+  code: '',
 };
 
-export const SnippetFormModal = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+export const SnippetFormModal: FC<Props> = (props) => {
+  const { isOpen, onClose, onConfirm } = props;
 
   const [fields, setFields] = useState(formInitialState);
 
   const makeFieldChangeHandler = useCallback(
-    (name: `${FormField}`) =>
+    (name: `${SnippetField}`) =>
       (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
         setFields((prev) => ({ ...prev, [name]: evt.target.value })),
     []
   );
+
+  const saveSnippet = useCallback(() => {
+    onConfirm(fields);
+    onClose();
+  }, [fields, onClose, onConfirm]);
 
   useEffect(
     function clearFormStateOnClose() {
@@ -59,16 +64,16 @@ export const SnippetFormModal = () => {
           <FormControl isRequired>
             <FormLabel>Title</FormLabel>
             <Input
-              name={FormField.Title}
+              name={SnippetField.Title}
               value={fields.title}
               onChange={makeFieldChangeHandler('title')}
             />
           </FormControl>
 
-          <FormControl mt={5}>
+          <FormControl mt={5} isRequired>
             <FormLabel>Description</FormLabel>
             <Input
-              name={FormField.Description}
+              name={SnippetField.Description}
               value={fields.description}
               onChange={makeFieldChangeHandler('description')}
             />
@@ -77,7 +82,7 @@ export const SnippetFormModal = () => {
           <FormControl isRequired mt={5}>
             <FormLabel>Code snippet</FormLabel>
             <Textarea
-              name={FormField.Code}
+              name={SnippetField.Code}
               value={fields.code}
               onChange={makeFieldChangeHandler('code')}
               placeholder="Your code snippet here ..."
@@ -91,7 +96,8 @@ export const SnippetFormModal = () => {
           <Button
             mr={3}
             colorScheme="blue"
-            isDisabled={!fields.title || !fields.code}
+            isDisabled={!(fields.title && fields.description && fields.code)}
+            onClick={saveSnippet}
           >
             Add
           </Button>

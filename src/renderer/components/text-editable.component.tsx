@@ -25,6 +25,8 @@ const EditableControls: FC = () => {
     <ButtonGroup justifyContent="center" size="sm">
       <Tooltip label="Confirm">
         <IconButton
+          colorScheme="blue"
+          variant="ghost"
           aria-label="Confirm button"
           icon={<CheckIcon />}
           {...getSubmitButtonProps()}
@@ -32,6 +34,8 @@ const EditableControls: FC = () => {
       </Tooltip>
       <Tooltip label="Cancel">
         <IconButton
+          colorScheme="red"
+          variant="ghost"
           aria-label="Cancel button"
           icon={<CloseIcon />}
           {...getCancelButtonProps()}
@@ -42,6 +46,8 @@ const EditableControls: FC = () => {
     <Flex justifyContent="center">
       <Tooltip label="Edit">
         <IconButton
+          colorScheme="cyan"
+          variant="ghost"
           aria-label="Edit button"
           size="sm"
           icon={<EditIcon />}

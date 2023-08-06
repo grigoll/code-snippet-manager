@@ -1,22 +1,18 @@
-import { ChakraProvider } from '@chakra-ui/react';
 import './index.css';
-import { SnippetListContainer } from './modules/snippet/list-container.component';
+import { ChakraProvider } from '@chakra-ui/react';
 import { Layout } from './components/layout.component';
-import { SnippetFormModal } from './modules/snippet/form-modal';
+import { SnippetFormModalContainer } from './modules/snippet/form-modal.container';
+import { SnippetListContainer } from './modules/snippet/list-container.component';
 
 function App() {
   return (
-    <Layout>
-      <SnippetListContainer />
-      <SnippetFormModal />
-    </Layout>
-  );
-}
-
-export default function Shell() {
-  return (
     <ChakraProvider>
-      <App />
+      <Layout>
+        <SnippetFormModalContainer />
+        <SnippetListContainer />
+      </Layout>
     </ChakraProvider>
   );
 }
+
+export default App;
