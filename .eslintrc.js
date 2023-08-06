@@ -16,6 +16,9 @@ module.exports = {
     'react/function-component-definition': 'off',
     'react/button-has-type': 'off',
     'jsx-a11y/label-has-associated-control': 'off',
+    'import/prefer-default-export': 'off',
+    'react/jsx-props-no-spreading': 'off',
+    'react/require-default-props': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,
