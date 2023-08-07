@@ -14,6 +14,7 @@ export const stateSelectors = {
 /**
  * Action selectors
  */
+const loadSnippetsFromStorage = (s: StoreActions) => s.loadSnippetsFromStorage;
 const addSnippet = (s: StoreActions) => s.addSnippet;
 const removeSnippet = (s: StoreActions) => s.removeSnippet;
 const updateSnippet = (s: StoreActions) => s.updateSnippet;
@@ -26,4 +27,5 @@ export const actionSelectors = {
   updateSnippet,
   showSnippetModal,
   hideSnippetModal,
+  loadSnippetsFromStorage,
 };

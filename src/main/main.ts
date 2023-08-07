@@ -12,6 +12,7 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import Store from 'electron-store';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
@@ -30,6 +31,36 @@ ipcMain.on('ipc-example', async (event, arg) => {
   console.log(msgTemplate(arg));
   event.reply('ipc-example', msgTemplate('pong'));
 });
+
+/** Store ==> */
+
+/** NOTE
+ * Electron Store is used for persisting our data. Worth noting, this is a store and not a database.
+ * But this being a test task, this will do for now for persisting our data.
+ * In real production better to use different approach (eg: database) since this store simply uses a JSON file that is read/written on every change.
+ * Yet for storing smaller amounts of data like user settings, value caching, etc. it's a great package, and arguably better than localStorage because
+ * localStorage is not very fault tolerant (if an app encounters an error and quits unexpectedly, we could lose the data).
+ * On top of that Electron Store has nicer API and supports much more (eg: schemas, that we don't use here, would be overkill (: )
+ */
+const store = new Store();
+
+ipcMain.on('ipc-get-store-value', async (event, key: string) => {
+  console.log('Getting from storage', { key });
+
+  const value = store.get(key);
+
+  event.reply('ipc-get-store-value', value);
+});
+
+ipcMain.on('ipc-set-store-value', async (event, key: string, value: string) => {
+  console.log('Setting in storage', { key, value });
+
+  store.set(key, value);
+
+  event.reply('ipc-set-store-value', value);
+});
+
+/** <== Store */
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -71,8 +102,8 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
+    width: 1920,
+    height: 1080,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged

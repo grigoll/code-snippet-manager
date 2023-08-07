@@ -1,6 +1,6 @@
 import { DeleteIcon } from '@chakra-ui/icons';
 import {
-  Box,
+  Card,
   Flex,
   IconButton,
   StackDivider,
@@ -29,7 +29,7 @@ export const SnippetList: React.FC<SnippetListProps> = ({
   return (
     <VStack spacing="5" divider={<StackDivider borderColor="gray.200" />}>
       {snippets.map((snippet) => (
-        <Box key={snippet.id} width="100%">
+        <Card key={snippet.id} p="5" width="100%" variant="filled">
           <SnippetItem {...snippet} onEdit={onEditItem} />
 
           <Flex justifyContent="center" mt="5">
@@ -42,7 +42,7 @@ export const SnippetList: React.FC<SnippetListProps> = ({
               />
             </Tooltip>
           </Flex>
-        </Box>
+        </Card>
       ))}
     </VStack>
   );

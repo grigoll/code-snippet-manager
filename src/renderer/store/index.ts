@@ -1,46 +1,59 @@
 import { create } from 'zustand';
 import { v4 as uuid } from 'uuid';
 import { logger } from 'renderer/libs/logger';
+import { Snippet } from 'shared/snippet';
 import { storeLoggerMiddleware } from './logger.middleware';
 import { StoreActions, StoreState } from './types';
+
+const sendUpdatedSnippetsToStorage = (snippets: Snippet[]) =>
+  window.electron.ipcRenderer.sendMessage(
+    'ipc-set-store-value',
+    'snippets',
+    snippets
+  );
 
 export interface Store extends StoreState, StoreActions {}
 
 export const useAppStore = create<Store>()(
-  storeLoggerMiddleware((set) => ({
+  storeLoggerMiddleware((set, get) => ({
+    loadSnippetsFromStorage: async () => {
+      window.electron.ipcRenderer.sendMessage(
+        'ipc-get-store-value',
+        'snippets'
+      );
+    },
+
     snippets: [],
     addSnippet: async (snippetData) => {
       logger.debug('adding snippet', { snippetData });
 
-      set((prev) => ({
-        snippets: prev.snippets.concat({ id: uuid(), ...snippetData }),
-      }));
+      const updatedSnippets = [
+        // let's add new snippets at the start of list
+        { id: uuid(), ...snippetData },
+        ...get().snippets,
+      ];
 
-      logger.debug('added snippet');
+      sendUpdatedSnippetsToStorage(updatedSnippets);
     },
     removeSnippet: async (id) => {
       logger.debug('removing snippet', { id });
 
-      set((prev) => ({
-        snippets: prev.snippets.filter((snip) => snip.id !== id),
-      }));
+      const updatedSnippets = get().snippets.filter((snip) => snip.id !== id);
 
-      logger.debug('removed snippet', { id });
+      sendUpdatedSnippetsToStorage(updatedSnippets);
     },
     updateSnippet: async ({ id, field, value }) => {
       logger.debug('updating snippet', { id, field, value });
 
-      set((prev) => ({
-        snippets: prev.snippets.map((snip) => {
-          if (snip.id !== id) {
-            return snip;
-          }
+      const updatedSnippets = get().snippets.map((snip) => {
+        if (snip.id !== id) {
+          return snip;
+        }
 
-          return { ...snip, [field]: value };
-        }),
-      }));
+        return { ...snip, [field]: value };
+      });
 
-      logger.debug('updated snippet', { id });
+      sendUpdatedSnippetsToStorage(updatedSnippets);
     },
 
     isSnippetModalVisible: false,
@@ -48,3 +61,21 @@ export const useAppStore = create<Store>()(
     hideSnippetModal: async () => set({ isSnippetModalVisible: false }),
   }))
 );
+
+/** NOTE
+ * We're sending whole list of snippets back and forth which is fine for this project as it's a test.
+ * But for real use-case sending whole data would be inefficient (especially when dealing with huge list of data) and better to send chunks/changes
+ * and then merge those changes wherever we have data persistance layer
+ */
+
+window.electron.ipcRenderer.on('ipc-get-store-value', (snippets) => {
+  logger.debug('loaded existing snippets from storage', { snippets });
+
+  useAppStore.setState({ snippets: <Snippet[]>snippets });
+});
+
+window.electron.ipcRenderer.on('ipc-set-store-value', (newSnippets) => {
+  logger.debug('snippets were updated in storage', { newSnippets });
+
+  useAppStore.setState({ snippets: <Snippet[]>newSnippets });
+});

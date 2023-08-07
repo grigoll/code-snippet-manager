@@ -6,6 +6,7 @@ export type StoreState = {
 };
 
 export type StoreActions = {
+  loadSnippetsFromStorage: () => Promise<void>;
   addSnippet: (s: SnippetFormData) => Promise<void>;
   removeSnippet: (id: string) => Promise<void>;
   updateSnippet: (param: {

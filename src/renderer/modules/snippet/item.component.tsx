@@ -34,7 +34,6 @@ const SnippetItem: FC<SnippetItemProps> = (props) => {
         <CodeEditorWithLang
           placeholder="Your code here ..."
           value={code}
-          debounceAmount={200}
           onChange={makeFieldEditHandler(SnippetField.Code)}
         />
       </Box>
